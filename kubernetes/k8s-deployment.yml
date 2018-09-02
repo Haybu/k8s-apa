@@ -17,5 +17,9 @@ spec:
       containers:
       - name: k8sapp
         image: haybu/k8s-app:0.0.1-SNAPSHOT
+        imagePullPolicy: Always
+        env:
+        - name: VERSION
+          value: '1.1'
         ports:
         - containerPort: 8080

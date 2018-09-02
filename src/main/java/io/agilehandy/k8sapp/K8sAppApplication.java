@@ -32,19 +32,23 @@ public class K8sAppApplication {
     @Bean
     MyHandlers handler(Environment environment) {
         String target_url = environment.getProperty("TARGET_URL");
+        String version = environment.getProperty("VERSION");
         if (target_url == null || target_url.equals("")) {
             target_url = "http://httpbin.org/uuid";
         }
-        return new MyHandlers(target_url);
+        if (version == null) {
+            version = "1.0";
+        }
+        return new MyHandlers(target_url, version);
     }
 
     @Bean
     WebFilter webFilter() {
         return (exchange, chain) ->
         {
-            if (exchange.getRequest().getHeaders().containsKey("X-HANG")) {
-                exchange.getResponse().getHeaders().add("X-HANG"
-                        ,exchange.getRequest().getHeaders().get("X-HANG").get(0));
+            if (exchange.getRequest().getHeaders().containsKey(MyHandlers.HEADER_NAME)) {
+                exchange.getResponse().getHeaders().add(MyHandlers.HEADER_NAME
+                        ,exchange.getRequest().getHeaders().get(MyHandlers.HEADER_NAME).get(0));
             }
 
             return chain.filter(exchange);

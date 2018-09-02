@@ -21,21 +21,25 @@ public class MyHandlers {
 
     Logger log = LoggerFactory.getLogger(MyHandlers.class);
 
-    private final String targetURL;
+    public static final String HEADER_NAME = "X-PERCENT-FAULT";
 
-    public MyHandlers(String targetURL) {
+    private final String targetURL;
+    private final String version;
+
+    public MyHandlers(String targetURL, String version) {
         this.targetURL = targetURL;
+        this.version = version;
     }
 
     public Mono<ServerResponse> handle(ServerRequest request) {
 
-        boolean hangHeaderFound = request.headers().asHttpHeaders().containsKey("X-HANG");
+        boolean headerFound = request.headers().asHttpHeaders().containsKey(MyHandlers.HEADER_NAME);
         boolean hangout = false;
-        if (hangHeaderFound) {
-            String hangValue = request.headers().header("X-HANG").get(0);
+        if (headerFound) {
+            String percentage = request.headers().header(MyHandlers.HEADER_NAME).get(0);
             int rand = this.randomInRange(0, 100);
-            log.info("hang / random >>> " + hangValue + " / " + rand);
-            if (rand < Integer.valueOf(hangValue)) {
+            log.info("fault-percentage / random >>> " + percentage + " / " + rand);
+            if (rand < Integer.valueOf(percentage)) {
                 hangout = true;
             }
         }
@@ -45,6 +49,7 @@ public class MyHandlers {
             return ServerResponse.status(HttpStatus.INTERNAL_SERVER_ERROR)
                     .syncBody("{\n\'uri\': " + uri
                             +",\n\'status\': " + HttpStatus.valueOf(500)
+                            +",\n\'version\': " + version
                             + "\n}\n"
                     );
         } else {
@@ -56,8 +61,8 @@ public class MyHandlers {
                     .defaultHeader(HttpHeaders.CONTENT_TYPE, MediaType.APPLICATION_JSON_VALUE)
                     ;
 
-            if (hangHeaderFound) {
-                clientBuilder.defaultHeader("X-HANG", request.headers().header("X-HANG").get(0));
+            if (headerFound) {
+                clientBuilder.defaultHeader(MyHandlers.HEADER_NAME, request.headers().header(MyHandlers.HEADER_NAME).get(0));
             }
 
             Mono<String> value = clientBuilder.build()
@@ -70,6 +75,7 @@ public class MyHandlers {
                         return  "{\'uri\': \'" + uri
                                 + "\',\n\'duration\': " + duration
                                 + ",\n\'status\': " + HttpStatus.valueOf(200)
+                                +",\n\'version\': " + version
                                 + ",\n\'content\': " + v + "}\n";
                     })
                     ;
