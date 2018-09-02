@@ -25,7 +25,7 @@ public class K8sAppApplication {
     @Bean
     RouterFunction<ServerResponse> routers(MyHandlers handler) {
         return RouterFunctions
-                .route(GET("/"), handler::jsonTest)
+                .route(GET("/"), handler::handle)
                 ;
     }
 

@@ -27,7 +27,7 @@ public class MyHandlers {
         this.targetURL = targetURL;
     }
 
-    public Mono<ServerResponse> jsonTest(ServerRequest request) {
+    public Mono<ServerResponse> handle(ServerRequest request) {
 
         boolean hangHeaderFound = request.headers().asHttpHeaders().containsKey("X-HANG");
         boolean hangout = false;
