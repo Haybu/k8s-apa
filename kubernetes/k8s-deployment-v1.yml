@@ -1,18 +1,20 @@
 apiVersion: apps/v1
 kind: Deployment
 metadata:
-  name: k8sapp-deployment
+  name: k8sapp-deployment-v1
   labels:
     app: k8sapp
 spec:
-  replicas: 3
+  replicas: 2
   selector:
     matchLabels:
       app: k8sapp
+      version: v1
   template:
     metadata:
       labels:
         app: k8sapp
+        version: v1
     spec:
       containers:
       - name: k8sapp
@@ -20,6 +22,6 @@ spec:
         imagePullPolicy: Always
         env:
         - name: VERSION
-          value: '1.1'
+          value: '1'
         ports:
         - containerPort: 8080
