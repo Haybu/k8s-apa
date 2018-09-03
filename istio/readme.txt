@@ -1,14 +1,14 @@
 in minikube
 
-- get INGRESS_PORT using:
-    export INGRESS_PORT=$(kubectl -n istio-system get service istio-ingressgateway -o jsonpath='{.spec.ports[?(@.name=="http2")].nodePort}')
+- to access the service you need to get the INGRESS_IP and INGRESS_PORT using:
+    export INGRESS_IP_ADDRESS_PORT=$(kubectl get node  -o 'jsonpath={.items[0].status.addresses[0].address}'):$(kubectl get svc knative-ingressgateway -n istio-system   -o 'jsonpath={.spec.ports[?(@.port==80)].nodePort}')
 
-- get INGRESS_HOST using:
-  export INGRESS_HOST=$(minikube ip)
+- to get the service's host, use:
+   export HOST_URL=$(kubectl get services.serving.knative.dev k8sapp -o jsonpath='{.status.domain}')
 
 - and curl the service via the ingress gateway using:
 
 curl \
      -w '\n' \
-     -H 'Host: k8sapp.myns.svc.cluster.local' \
-     http://$INGRESS_HOST:$INGRESS_PORT
+     -H 'Host: ${HOST}' \
+     http://$INGRESS_IP_ADDRESS_PORT
